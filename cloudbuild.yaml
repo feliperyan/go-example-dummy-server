@@ -1,4 +1,4 @@
 steps:
 
-- name: 'gcr.io/k8s-skaffold/pack'
-  args: ['--builder=gcr.io/buildpacks/builder', '--image', 'pkg.dev/$PROJECT_ID/dummy-sample-go:$COMMIT_SHA']
+- name: 'gcr.io/buildpacks/builder'
+  args: ['--image=pkg.dev/$PROJECT_ID/dummy-sample-go:$COMMIT_SHA']
