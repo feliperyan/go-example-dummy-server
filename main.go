@@ -8,6 +8,7 @@ import (
 )
 
 func health(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type", "application/json")
 	fmt.Fprintf(w, "{\"health\": \"ok\"}")
 }
 
