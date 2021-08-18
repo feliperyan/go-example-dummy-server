@@ -16,6 +16,10 @@ func quote(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, GetRandomQuote())
 }
 
+func root(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "hit /quote or /health")
+}
+
 func main() {
 
 	port, ok := os.LookupEnv("PORT")
