@@ -1,0 +1,10 @@
+apiVersion: skaffold/v2beta23
+kind: Config
+build:
+  googleCloudBuild:
+    projectId: fryan-argo-2
+  artifacts:
+  - image: australia-southeast1-docker.pkg.dev/fryan-argo-2/fryan-artifacts-1/go-dummy
+    buildpacks:
+      builder: "gcr.io/buildpacks/builder:v1"
+      trustBuilder: true

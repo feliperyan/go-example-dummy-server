@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-dummy-service
+spec:
+  ports:
+  - port: 8080
+    name: http
+  type: ClusterIP
+  selector:
+    app: go-dummy
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-dummy
+spec:
+  selector:
+    matchLabels:
+      app: go-dummy
+  template:
+    metadata:
+      labels:
+        app: go-dummy
+    spec:
+      containers:
+      - name: go-dummy
+        image: australia-southeast1-docker.pkg.dev/fryan-argo-2/fryan-artifacts-1/go-dummy
+        ports:
+          - containerPort: 8080

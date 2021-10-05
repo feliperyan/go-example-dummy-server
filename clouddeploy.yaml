@@ -1,0 +1,43 @@
+apiVersion: deploy.cloud.google.com/v1beta1
+kind: DeliveryPipeline
+metadata:
+ name: my-demo-app-4
+description: main application pipeline
+serialPipeline:
+ stages:
+ - targetId: qsdev
+   profiles: []
+ - targetId: qsprod
+   profiles: []
+---
+
+apiVersion: deploy.cloud.google.com/v1beta1
+kind: Target
+metadata:
+ name: qsdev
+description: development cluster
+gke:
+ cluster: projects/fryan-argo-2/locations/australia-southeast1/clusters/deploy-dev
+
+executionConfigs:
+- privatePool:
+   workerPool: "projects/fryan-argo-2/locations/australia-southeast1/workerPools/fryan-cb-pool-4"
+  usages:
+  - DEPLOY
+  - RENDER
+---
+
+apiVersion: deploy.cloud.google.com/v1beta1
+kind: Target
+metadata:
+ name: qsprod
+description: production cluster
+gke:
+ cluster: projects/fryan-argo-2/locations/australia-southeast1/clusters/deploy-prod
+
+executionConfigs:
+- privatePool:
+   workerPool: "projects/fryan-argo-2/locations/australia-southeast1/workerPools/fryan-cb-pool-4"
+  usages:
+  - DEPLOY
+  - RENDER

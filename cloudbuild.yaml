@@ -1,9 +1,0 @@
-steps:
-
-- name: 'gcr.io/cloud-builders/go'
-  entrypoint: 'go'
-  args: ['test', '-v']
-
-- name: 'gcr.io/k8s-skaffold/pack'
-  entrypoint: 'pack'
-  args: ['build', '--builder=gcr.io/buildpacks/builder', '--publish', 'australia-southeast1-docker.pkg.dev/$PROJECT_ID/fryan-artifacts-1/sample-go:$COMMIT_SHA']
