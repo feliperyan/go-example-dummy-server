@@ -6,4 +6,12 @@ steps:
 
 - name: 'gcr.io/k8s-skaffold/pack'
   entrypoint: 'pack'
-  args: ['build', '--builder=gcr.io/buildpacks/builder', '--publish', 'australia-southeast1-docker.pkg.dev/$PROJECT_ID/fryan-artifacts-1/sample-go:$COMMIT_SHA']
+  args: ['build', '--builder=gcr.io/buildpacks/builder', '--publish', 'australia-southeast1-docker.pkg.dev/$PROJECT_ID/fryan-artifacts-1/sample-go:$SHORT_SHA']
+
+- name: "gcr.io/cloud-builders/gke-deploy"
+  args:
+  - run
+  - --filename=k8s-deploy.yaml
+  - --image=australia-southeast1-docker.pkg.dev/$PROJECT_ID/fryan-artifacts-1/sample-go:$SHORT_SHA
+  - --location=australia-southeast1-a
+  - --cluster=deploy-dev
