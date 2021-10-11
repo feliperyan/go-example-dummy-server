@@ -1,7 +1,7 @@
 apiVersion: deploy.cloud.google.com/v1beta1
 kind: DeliveryPipeline
 metadata:
- name: my-demo-app-4
+ name: pipe-1
 description: main application pipeline
 serialPipeline:
  stages:
@@ -17,14 +17,14 @@ metadata:
  name: qsdev
 description: development cluster
 gke:
- cluster: projects/fryan-argo-2/locations/australia-southeast1/clusters/deploy-dev
+ cluster: projects/fryan-argo-free-2/locations/us-central1/clusters/test
 
-executionConfigs:
-- privatePool:
-   workerPool: "projects/fryan-argo-2/locations/australia-southeast1/workerPools/fryan-cb-pool-4"
-  usages:
-  - DEPLOY
-  - RENDER
+# executionConfigs:
+# - privatePool:
+#    workerPool: "projects/fryan-argo-2/locations/australia-southeast1/workerPools/fryan-cb-pool-4"
+#   usages:
+#   - DEPLOY
+#   - RENDER
 ---
 
 apiVersion: deploy.cloud.google.com/v1beta1
@@ -33,11 +33,11 @@ metadata:
  name: qsprod
 description: production cluster
 gke:
- cluster: projects/fryan-argo-2/locations/australia-southeast1/clusters/deploy-prod
+ cluster: projects/fryan-argo-free-2/locations/us-central1/clusters/prod
 
-executionConfigs:
-- privatePool:
-   workerPool: "projects/fryan-argo-2/locations/australia-southeast1/workerPools/fryan-cb-pool-4"
-  usages:
-  - DEPLOY
-  - RENDER
+# executionConfigs:
+# - privatePool:
+#    workerPool: "projects/fryan-argo-2/locations/australia-southeast1/workerPools/fryan-cb-pool-4"
+#   usages:
+#   - DEPLOY
+#   - RENDER
