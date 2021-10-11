@@ -8,3 +8,8 @@ build:
     buildpacks:
       builder: "gcr.io/buildpacks/builder:v1"
       trustBuilder: true
+
+deploy:
+  kubectl:
+    manifests:
+    - "k8s/*.yaml"
