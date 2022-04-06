@@ -33,3 +33,22 @@ func GetRandomQuote() string {
 	return fmt.Sprintf("A smart man once said: \n\n\t%s", s)
 
 }
+
+func GetQuotesForKeyword(keyword string) []string {
+
+	fmt.Println("searching for keyword: ", keyword)
+
+	if theQuotes == nil {
+		theQuotes = prepareQuotes("smart_quotes.txt")
+	}
+
+	found := []string{""}
+
+	for _, q := range theQuotes {
+		if strings.Contains(q, keyword) {
+			found = append(found, q)
+		}
+	}
+
+	return found
+}
