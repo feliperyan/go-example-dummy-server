@@ -42,7 +42,7 @@ func GetQuotesForKeyword(keyword string) []string {
 		theQuotes = prepareQuotes("smart_quotes.txt")
 	}
 
-	found := []string{""}
+	var found []string
 
 	for _, q := range theQuotes {
 		if strings.Contains(q, keyword) {
