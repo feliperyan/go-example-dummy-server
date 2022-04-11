@@ -12,6 +12,10 @@ type keywordObj struct {
 	Word string
 }
 
+type newQuote struct {
+	NewQuote string
+}
+
 type keywordSearchResult struct {
 	Result []string
 }
@@ -22,10 +26,28 @@ func health(w http.ResponseWriter, r *http.Request) {
 }
 
 func quote(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		var nq newQuote
+		err := json.NewDecoder(r.Body).Decode(&nq) // instead of unmarshal, given we are reading from a stream.
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		err = AddQuote(nq.NewQuote)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		fmt.Fprintf(w, "quote added")
+		return
+	}
+
 	fmt.Fprintf(w, GetRandomQuote())
 }
 
-func postAPI(w http.ResponseWriter, r *http.Request) {
+func search(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -61,9 +83,9 @@ func main() {
 
 	log.Println("server starting...")
 
-	http.HandleFunc("/health", health)
+	http.HandleFunc("/", health)
 	http.HandleFunc("/quote", quote)
-	http.HandleFunc("/post", postAPI)
+	http.HandleFunc("/search", search)
 
 	http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 }

@@ -10,11 +10,15 @@ import (
 
 var theQuotes []string
 
+func init() {
+	theQuotes = prepareQuotes("smart_quotes.txt")
+}
+
 func prepareQuotes(filePath string) []string {
 	bytes, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		fmt.Printf("Error opening file: %s", err)
-		return nil
+		panic(1)
 	}
 	s := string(bytes)
 	q := strings.Split(s, "\n")
@@ -22,10 +26,6 @@ func prepareQuotes(filePath string) []string {
 }
 
 func GetRandomQuote() string {
-	if theQuotes == nil {
-		theQuotes = prepareQuotes("smart_quotes.txt")
-	}
-
 	rand.Seed(time.Now().UnixNano())
 
 	num := rand.Intn(len(theQuotes))
@@ -38,10 +38,6 @@ func GetQuotesForKeyword(keyword string) []string {
 
 	fmt.Println("searching for keyword: ", keyword)
 
-	if theQuotes == nil {
-		theQuotes = prepareQuotes("smart_quotes.txt")
-	}
-
 	var found []string
 
 	for _, q := range theQuotes {
@@ -51,4 +47,15 @@ func GetQuotesForKeyword(keyword string) []string {
 	}
 
 	return found
+}
+
+func AddQuote(quote string) error {
+
+	if quote == "" {
+		return fmt.Errorf("empty quote")
+	}
+
+	theQuotes = append(theQuotes, quote)
+	fmt.Println("num of quotes: ", len(theQuotes))
+	return nil
 }
