@@ -1,12 +1,15 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+
+	"google.golang.org/api/idtoken"
 )
 
 type keywordObj struct {
@@ -44,6 +47,8 @@ func quote(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "quote added")
 		return
 	}
+
+	fmt.Printf("Got request from %v | Headers: %v \n", r.RemoteAddr, r.Header)
 
 	q := newQuote{Quote: GetRandomQuote()}
 	fmt.Printf("Get quote: %v \n", q)
@@ -83,14 +88,37 @@ func search(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(marshalledResult))
 }
 
-func request_quote_from_api(api string) func(http.ResponseWriter, *http.Request) {
+func request_quote_from_api(api string, audience string) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		resp, err := http.Get(api)
-		if err != nil {
-			fmt.Printf("error on GET from backend api at %s. Err: %v\n", api, err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
+		var resp *http.Response
+
+		if audience != "" {
+			ctx := context.Background()
+			// client is a http.Client that automatically adds an "Authorization" header
+			// to any requests made.
+			client, err := idtoken.NewClient(ctx, audience)
+			if err != nil {
+				fmt.Printf("error creating client idtoken.NewClient: %v \n", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			resp, err = client.Get(api)
+			if err != nil {
+				fmt.Printf("error on client.Get(api). Err: %v\n", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+		} else {
+			var err error
+			resp, err = http.Get(api)
+			if err != nil {
+				fmt.Printf("error on GET from backend api at %s. Err: %v\n", api, err)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
 		}
 
 		defer resp.Body.Close()
@@ -117,15 +145,20 @@ func request_quote_from_api(api string) func(http.ResponseWriter, *http.Request)
 func main() {
 	log.Println("Initialising...")
 
+	http.HandleFunc("/", health)
+
 	port, ok := os.LookupEnv("PORT")
 	apiEndpoint, ok2 := os.LookupEnv("QUOTEAPIENDPOINT")
+	audience, ok3 := os.LookupEnv("AUDIENCE")
 
 	if !ok {
 		port = "8080"
 	}
 	log.Println("Listening on: ", port)
 
-	http.HandleFunc("/", health)
+	if !ok3 {
+		audience = ""
+	}
 
 	// Server is in backend mode
 	if !ok2 {
@@ -134,8 +167,8 @@ func main() {
 		http.HandleFunc("/search", search)
 
 	} else { // Server is in frontend mode. Expects a backend it can reach to get quotes from
-		log.Println("FrontEnd mode. API backend set to: ", apiEndpoint)
-		http.HandleFunc("/fetch_quote", request_quote_from_api(apiEndpoint))
+		log.Printf("FrontEnd mode. API backend set to: %s | audience: %s \n", apiEndpoint, audience)
+		http.HandleFunc("/fetch_quote", request_quote_from_api(apiEndpoint, audience))
 	}
 
 	http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
