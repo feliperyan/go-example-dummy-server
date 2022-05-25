@@ -30,7 +30,7 @@ func GetRandomQuote() string {
 
 	num := rand.Intn(len(theQuotes))
 	s := theQuotes[num]
-	return fmt.Sprintf("A smart man once said: \n\n\t%s", s)
+	return s
 
 }
 

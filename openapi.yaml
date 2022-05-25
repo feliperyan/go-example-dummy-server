@@ -1,0 +1,80 @@
+swagger: "2.0"
+info:
+  title: simple-api 
+  description: "goes with github.com/feliperyan/go-example-dummy-server"
+  version: "1.0.0"
+x-google-backend:
+  address: https://simple-api-fryan-uzjacto7pa-uc.a.run.app
+host: simple-api.apigateway.fryan-repo-server.cloud.goog
+schemes:
+  - "https"
+  - "http"
+paths:
+  "/search":
+    post:
+      description: "Returns a quote that includes the keyword provided."
+      produces: [
+        "application/json"
+      ]
+      consumes:
+        - application/json
+      operationId: "quoteByKeyword"
+      parameters:
+        - in: body              
+          name: thingamajig
+          schema:
+            type: object
+            required:
+              - word
+            properties:
+              word:
+                type: string
+      responses:
+        200:
+          description: "Success."
+          schema:
+            type: array
+            items:
+              type: string
+        400:
+          description: "Bad data provided"
+  "/quote":
+    get:
+      description: "Returns random quote."
+      operationId: "quoteRandom"
+      responses:
+        200:
+          description: "Success."
+          schema:
+            type: string
+    post:
+      description: "Adds a quote to the system"
+      operationId: "quoteAdd"
+      consumes:
+        - application/json
+      parameters:
+        - in: body              
+          name: thingamajig
+          schema:
+            type: object
+            required:
+              - quote
+            properties:
+              word:
+                type: string
+      responses:
+        200:
+          description: "Success."
+          schema:
+            type: string
+        400:
+          description: "Bad data provided"
+  "/":
+    get:
+      description: "health check"
+      operationId: "health"
+      responses:
+        200:
+          description: "Success."
+          schema:
+            type: string
