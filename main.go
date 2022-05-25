@@ -130,6 +130,8 @@ func request_quote_from_api(api string, audience string) func(http.ResponseWrite
 			return
 		}
 
+		fmt.Printf("RAW response from API backend: %s \n", string(body))
+
 		q := &newQuote{}
 		err = json.Unmarshal(body, q)
 		if err != nil {
