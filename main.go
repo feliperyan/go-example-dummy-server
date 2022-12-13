@@ -26,7 +26,7 @@ type keywordSearchResult struct {
 
 func health(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "application/json")
-	fmt.Fprintf(w, "{\"health\": \"ok\"}")
+	fmt.Fprintf(w, "{\"health\": \"YOW\"}")
 }
 
 func quote(w http.ResponseWriter, r *http.Request) {
