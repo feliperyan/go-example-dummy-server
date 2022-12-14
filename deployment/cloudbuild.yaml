@@ -1,32 +1,54 @@
 steps:
 
-  - name: gcr.io/k8s-skaffold/pack
+  # - name: gcr.io/k8s-skaffold/pack
+  #   args:
+  #     - build
+  #     - '$_REGISTRY_ROOT/$PROJECT_ID/$_REGISTRY_NAME/$_IMAGE_NAME:$COMMIT_SHA'
+  #     - '--builder=gcr.io/buildpacks/builder:v1'
+  #     - '--network=cloudbuild'
+  #     - '--path=.'
+  #   id: 01 Buildpack
+  #   entrypoint: pack
+
+  - name: docker pull gcr.io/k8s-skaffold/skaffold/v2:latest
+    id: 01 Skaffold Build
     args:
       - build
-      - '$_REGISTRY_ROOT/$PROJECT_ID/$_REGISTRY_NAME/$_IMAGE_NAME:$COMMIT_SHA'
-      - '--builder=gcr.io/buildpacks/builder:v1'
-      - '--network=cloudbuild'
-      - '--path=.'
-    id: 01 Buildpack
-    entrypoint: pack
+      - --default-repo='$_REGISTRY_ROOT/$PROJECT_ID/$_REGISTRY_NAME'
+      - --push='$_REGISTRY_ROOT/$PROJECT_ID/$_REGISTRY_NAME'
+      - --file-output='artifacts.json'
+    entrypoint: skaffold
 
-  - name: gcr.io/cloud-builders/docker
-    args:
-      - '-c'
-      - >
-        docker push
-        $_REGISTRY_ROOT/$PROJECT_ID/$_REGISTRY_NAME/$_IMAGE_NAME:${COMMIT_SHA}
-        &&
+  # - name: gcr.io/cloud-builders/docker
+  #   id: 02 Push to Artifact Registry
+  #   args:
+  #     - '-c'
+  #     - >
+  #       docker push
+  #       $_REGISTRY_ROOT/$PROJECT_ID/$_REGISTRY_NAME/$_IMAGE_NAME:${COMMIT_SHA}
+  #       &&
 
-        docker image inspect
-        $_REGISTRY_ROOT/$PROJECT_ID/$_REGISTRY_NAME/$_IMAGE_NAME:${COMMIT_SHA}
-        --format '{{index .RepoDigests 0}}' > image-digest.txt &&
-
-        cat image-digest.txt
-    id: 02 Push to Artifact Registry
-    entrypoint: /bin/bash
+  #       docker image inspect
+  #       $_REGISTRY_ROOT/$PROJECT_ID/$_REGISTRY_NAME/$_IMAGE_NAME:${COMMIT_SHA}
+  #       --format '{{index .RepoDigests 0}}' > image-digest.txt &&
+  #       cat image-digest.txt
+  #   entrypoint: /bin/bash
     
+  # - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+  #   id: 02 Create Cloud Deploy Release
+  #   args:
+  #     - '-c'
+  #     - |
+  #       gcloud deploy releases create rel-${SHORT_SHA} \
+  #       --delivery-pipeline=${_PIPE_NAME} \
+  #       --region=${_PIPE_REGION} \
+  #       --annotations=commitId=${REVISION_ID} \
+  #       --images=${_IMAGE_NAME}=$(/bin/cat image-digest.txt) \
+  #       --skaffold-file=${_SKAFFOLD_LOCATION}
+  #   entrypoint: /bin/bash
+
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    id: 02 Create Cloud Deploy Release
     args:
       - '-c'
       - |
@@ -34,9 +56,8 @@ steps:
         --delivery-pipeline=${_PIPE_NAME} \
         --region=${_PIPE_REGION} \
         --annotations=commitId=${REVISION_ID} \
-        --images=${_IMAGE_NAME}=$(/bin/cat image-digest.txt) \
+        --build-artifacts=${_SKAFFOLD_LOCATION}/artifacts.json \
         --skaffold-file=${_SKAFFOLD_LOCATION}
-    id: 03 Create Cloud Deploy Release
     entrypoint: /bin/bash
 
 images:
