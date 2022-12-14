@@ -22,11 +22,12 @@ steps:
     id: 01 Skaffold Build
     args:
       - build
-      - --profile=build
+      - --profile=cloudbuild
       - --default-repo=$_REGISTRY_ROOT/$PROJECT_ID/$_REGISTRY_NAME
       - --push=$_REGISTRY_ROOT/$PROJECT_ID/$_REGISTRY_NAME
       - --file-output=/workspace/artifacts.json
       - --filename=$_MANIFESTS_LOCATION/skaffold.yaml
+      - -vdebug
     entrypoint: skaffold
 
   # - name: gcr.io/cloud-builders/docker

@@ -12,9 +12,13 @@ build:
 
 profiles:
 
-- name: build
+- name: cloudbuild
   build:
     local: {}
+    tagPolicy:
+      envTemplate:
+        template: "{{.SHORT_SHA}}"
+  
 
 - name: dev
   build:
