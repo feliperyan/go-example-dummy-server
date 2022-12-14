@@ -10,13 +10,23 @@ steps:
   #   id: 01 Buildpack
   #   entrypoint: pack
 
-  - name: docker pull gcr.io/k8s-skaffold/skaffold/v2:latest
+  # - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+  #   id: Try LS
+  #   args:
+  #     - '-c'
+  #     - |
+  #       ls -la
+  #   entrypoint: /bin/bash
+
+  - name: gcr.io/k8s-skaffold/skaffold
     id: 01 Skaffold Build
     args:
       - build
-      - --default-repo='$_REGISTRY_ROOT/$PROJECT_ID/$_REGISTRY_NAME'
-      - --push='$_REGISTRY_ROOT/$PROJECT_ID/$_REGISTRY_NAME'
-      - --file-output='artifacts.json'
+      - --profile=build
+      - --default-repo=$_REGISTRY_ROOT/$PROJECT_ID/$_REGISTRY_NAME
+      - --push=$_REGISTRY_ROOT/$PROJECT_ID/$_REGISTRY_NAME
+      - --file-output=/workspace/artifacts.json
+      - --filename=$_MANIFESTS_LOCATION/skaffold.yaml
     entrypoint: skaffold
 
   # - name: gcr.io/cloud-builders/docker
@@ -56,8 +66,8 @@ steps:
         --delivery-pipeline=${_PIPE_NAME} \
         --region=${_PIPE_REGION} \
         --annotations=commitId=${REVISION_ID} \
-        --build-artifacts=${_SKAFFOLD_LOCATION}/artifacts.json \
-        --skaffold-file=${_SKAFFOLD_LOCATION}
+        --build-artifacts='/workspace/artifacts.json' \
+        --skaffold-file=${_MANIFESTS_LOCATION}/skaffold.yaml
     entrypoint: /bin/bash
 
 images:
@@ -73,4 +83,4 @@ substitutions:
   _IMAGE_NAME: golang-app
   _PIPE_REGION: australia-southeast1
   _PIPE_NAME: golang-deploy
-  _SKAFFOLD_LOCATION: deployment/skaffold.yaml
+  _MANIFESTS_LOCATION: deployment

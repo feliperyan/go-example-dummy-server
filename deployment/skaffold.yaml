@@ -12,6 +12,10 @@ build:
 
 profiles:
 
+- name: build
+  build:
+    local: {}
+
 - name: dev
   build:
     local: {}
