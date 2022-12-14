@@ -1,0 +1,40 @@
+apiVersion: skaffold/v3
+kind: Config
+metadata: 
+  name: deploy-run-quickstart
+
+build:
+  artifacts:
+  - image: golang-app
+    context: go-example-dummy-server
+    buildpacks:
+      trustBuilder: true
+
+profiles:
+
+- name: dev
+  build:
+    local: {}
+  manifests:
+    rawYaml:
+    - deployK8s.yaml
+  deploy: {}
+
+- name: stg
+  build:
+    googleCloudBuild: {}      
+  manifests:
+    rawYaml:
+    - run-stg.yaml
+  deploy:
+    cloudrun: {}
+
+- name: prod
+  build:
+    googleCloudBuild: {}
+  manifests:
+    rawYaml:
+    - run-prod.yaml
+  deploy:
+    cloudrun: {}
+  

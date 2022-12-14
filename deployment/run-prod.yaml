@@ -1,0 +1,9 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: golang-production-run
+spec:
+  template:
+    spec:
+      containers:
+      - image: golang-app
