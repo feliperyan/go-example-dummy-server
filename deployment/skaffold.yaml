@@ -6,7 +6,7 @@ metadata:
 build:
   artifacts:
   - image: golang-app
-    context: go-example-dummy-server
+    context: ../
     buildpacks:
       trustBuilder: true
 

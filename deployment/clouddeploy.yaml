@@ -1,0 +1,32 @@
+apiVersion: deploy.cloud.google.com/v1
+kind: DeliveryPipeline
+metadata:
+ name: golang-deploy
+description: main application pipeline
+serialPipeline:
+ stages:
+ - targetId: golang-staging
+   profiles: [stg]
+ - targetId: golang-production
+   profiles: [prod]
+
+---
+
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+ name: golang-staging
+description: Cloud Run staging service
+run:
+ location: projects/fryan-yow-001/locations/australia-southeast1
+
+---
+
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+ name: golang-production
+description: Cloud Run production service
+requireApproval: true
+run:
+ location: projects/fryan-yow-001/locations/australia-southeast1

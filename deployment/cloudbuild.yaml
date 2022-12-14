@@ -1,0 +1,55 @@
+steps:
+
+  - name: gcr.io/k8s-skaffold/pack
+    args:
+      - build
+      - '$_REGISTRY_ROOT/$PROJECT_ID/$_REGISTRY_NAME/$_IMAGE_NAME:$COMMIT_SHA'
+      - '--builder=gcr.io/buildpacks/builder:v1'
+      - '--network=cloudbuild'
+      - '--path=.'
+    id: 01 Buildpack
+    entrypoint: pack
+
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - '-c'
+      - >
+        docker push
+        $_REGISTRY_ROOT/$PROJECT_ID/$_REGISTRY_NAME/$_IMAGE_NAME:${COMMIT_SHA}
+        &&
+
+        docker image inspect
+        $_REGISTRY_ROOT/$PROJECT_ID/$_REGISTRY_NAME/$_IMAGE_NAME:${COMMIT_SHA}
+        --format '{{index .RepoDigests 0}}' > image-digest.txt &&
+
+        cat image-digest.txt
+    id: 02 Push to Artifact Registry
+    entrypoint: /bin/bash
+    
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    args:
+      - '-c'
+      - |
+        gcloud deploy releases create rel-${SHORT_SHA} \
+        --delivery-pipeline=${_PIPE_NAME} \
+        --region=${_PIPE_REGION} \
+        --annotations=commitId=${REVISION_ID} \
+        --images=${_IMAGE_NAME}=$(/bin/cat image-digest.txt) \
+        --skaffold-file=${_SKAFFOLD_LOCATION}
+    id: 03 Create Cloud Deploy Release
+    entrypoint: /bin/bash
+
+images:
+  - '$_REGISTRY_ROOT/$PROJECT_ID/$_REGISTRY_NAME/$_IMAGE_NAME:${COMMIT_SHA}'
+
+options:
+  sourceProvenanceHash:
+    - SHA256
+
+substitutions:
+  _REGISTRY_ROOT: asia-southeast1-docker.pkg.dev
+  _REGISTRY_NAME: fryan-yow-reg
+  _IMAGE_NAME: golang-app
+  _PIPE_REGION: australia-southeast1
+  _PIPE_NAME: golang-deploy
+  _SKAFFOLD_LOCATION: deployment/skaffold.yaml
